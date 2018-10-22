@@ -1,14 +1,10 @@
-
-
-
 var https = require("https");
-
 var username = "9094fc9d9fb9254454b77bc312d0aeb4";
 var password = "e6cc8925f69e0d16a6079c379e646845";
 var auth = "Basic " + new Buffer(username + ':' + password).toString('base64');
 var d = new Date();
 var year = d.getFullYear();
-var month = d.getMonth()+1;
+var mon = d.getMonth()+1;
 var day = d.getDate();
 var dw = d.getDay();
 if(dw==6){ //stocks don't trade over the weekend
@@ -20,10 +16,11 @@ day-=2;
 if(day<10){
 day = "0"+day;
 }
+var date = year+"-"+mon+"-"+day;
 var request = https.request({
     method: "GET",
     host: "api.intrinio.com",
-    path: "/prices?identifier=AAPL&start_date=2018-10-19&end_date=2018-10-19&frequency=hourly&sort_order=asc&page_number=1&page_size=1",
+    path: "/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
     headers: {
         "Authorization": auth
     }
