@@ -26,7 +26,7 @@ var data =  jQuery.ajax({
             price = data['Time Series (Daily)'][dateS]['1. open'];
      // console.log(symbol);
      // console.log(data);
-       console.log(price);
+       //console.log(price);
         }
     }).done(function() {
         console.log(price);
