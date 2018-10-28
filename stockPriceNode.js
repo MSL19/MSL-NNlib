@@ -1,13 +1,22 @@
 var https = require("https");
-var username = "9094fc9d9fb9254454b77bc312d0aeb4";
-var password = "e6cc8925f69e0d16a6079c379e646845";
-var auth = "Basic " + new Buffer(username + ':' + password).toString('base64');
+
 var d = new Date();
 var year = d.getFullYear();
 var mon = d.getMonth()+1;
 var day = d.getDate();
 var openP;
 var company;
+var pastP = [];
+var hours = d.getHours()+2;
+var minutes = d.getMinutes();
+if(minutes<30){
+    minutes = "00";
+}
+else{
+    minutes = "30";
+}
+var time = hours+":"+minutes+":00";
+
 var dw = d.getDay();
 if(dw==6){ //stocks don't trade over the weekend
 day--;
@@ -22,7 +31,7 @@ var date = year+"-"+mon+"-"+day;
 var request = https.request({
     method: "GET",
     host: "www.alphavantage.co", //"api.intrinio.com",
-    path: "/query?function=TIME_SERIES_INTRADAY&symbol=MSFT&interval=30min&apikey=4YCOZN9E28NT4HJL", 
+    path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=4YCOZN9E28NT4HJL", 
     //"/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
    /* headers: {
         "Authorization": auth
@@ -35,18 +44,18 @@ var request = https.request({
     });
     response.on('end', function() {
         company = JSON.parse(json);
-       // openP = company.data[0].open;
+        //openP = company['Time Series (30min)'][date+' '+time]['4. close'];
         console.log(company);
         //return openP;
     });
 });
-const express = require('express');
-const app = express();
-const port = 3000;
+const express = require('express'); //create express sender object
+const app = express();//create express object
+const port = 3000; //set the localhost port
 
-app.get('/', (req, res) => res.send(company.toString()));
+app.get('/', (req, res) => res.send(openP.toString())); //send the data--make sure to convert to a string
 
-app.listen(port, () => console.log(`Listening on port ${port}!`));
+app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
 //express 
 //ejs
 //do it with this URL: https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&interval=1min&apikey=4YCOZN9E28NT4HJL
