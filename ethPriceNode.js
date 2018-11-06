@@ -4,12 +4,22 @@ function predictPrice(time, priceDelta, trendsDelta){
     let inputs = [time, priceDelta, trendsDelta];//I'll need to normalize all this stuff :)
     let outputs = brain.predict(inputs);
 }
+async function getPrice(){
+    var test = await getEthPrice();
+    console.log("MAGA"+test);
+
+}
+ 
+setInterval(getPrice, 7000);
+//getPrice();
 var price;
 var pastPrice;
 var vol
 var ethData;
 var pastP = [];
-var requestEthPrice = https.request({
+function getEthPrice(){
+    return new Promise(function(resolve, reject){
+    var requestEthPrice =  https.request({ 
     method: "GET",
     //https://api.coinmarketcap.com/v2/ticker/1027/
     host: "pro-api.coinmarketcap.com", //"api.intrinio.com",
@@ -25,14 +35,16 @@ var requestEthPrice = https.request({
         json += chunk;
         
     });
+    console.log(response);
     response.on('end', function() {
         ethData = JSON.parse(json);
         price = ethData['data'][1]['quote']['USD']['price'];
 
-        console.log(price);
-        return price;
+ //       console.log(price);
+        resolve(price);
     });
 });
+
 /*const express = require('express'); //create express sender object
 const app = express();//create express object
 const port = 3000; //set the localhost port
@@ -44,6 +56,8 @@ app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that yo
 //do it with this URL: https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&interval=1min&apikey=4YCOZN9E28NT4HJL
 request.end();*/
 requestEthPrice.end();
+    });
+}
 /* //this works but for now I'm not including it while I do my stuff
 const googleTrends = require('google-trends-api');
 googleTrends.relatedTopics({keyword: 'Apple', startTime: new Date('2018-10-19'), endTime: new Date(Date.now())})
