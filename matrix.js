@@ -1,6 +1,7 @@
 // let m = new Matrix(3,2);
 
 
+
 class Matrix {
   constructor(rows, cols) {
     this.rows = rows;
@@ -17,7 +18,7 @@ class Matrix {
     }
     return m;
   }
-
+  
   static fromArray(arr) {
     return new Matrix(arr.length, 1).map((e, i) => arr[i]);
   }
@@ -136,3 +137,4 @@ class Matrix {
 if (typeof module !== 'undefined') {
   module.exports = Matrix;
 }
+

@@ -1,15 +1,24 @@
+//lol i need to talk to haynes about normalizing the price and the volume 
+//google trends data should already be normalized
 var https = require("https");
-let brain; //create a NN
-function predictPrice(time, priceDelta, trendsDelta){
-    let inputs = [time, priceDelta, trendsDelta];//I'll need to normalize all this stuff :)
+
+const myModule = require('./matrix');
+const nn = require("./nn");
+let brain;
+brain  = new nn(3,3,3); //create a NN
+function predictPrice(vol, priceDelta, googtrends){
+    let inputs = [vol, priceDelta, googTrends];//I'll need to normalize all this stuff :)
     let outputs = brain.predict(inputs);
 }
 async function getPrice(){
-    var test = await getEthPrice();
-    console.log("MAGA"+test);
+    var ethP = await getEthPrice();
+    var ethV = await getEthVol();
+    console.log(ethP);
+    console.log(ethV);
+    
 
 }
- 
+
 setInterval(getPrice, 7000);
 //getPrice();
 var price;
@@ -35,16 +44,47 @@ function getEthPrice(){
         json += chunk;
         
     });
-    console.log(response);
+  //  console.log(response);
     response.on('end', function() {
         ethData = JSON.parse(json);
         price = ethData['data'][1]['quote']['USD']['price'];
-
+        vol = ethData['data'][1]['total_supply'];
+      //  console.log(ethData);
  //       console.log(price);
         resolve(price);
     });
 });
+requestEthPrice.end();
+    });
+}
+function getEthVol(){
+    return new Promise(function(resolve, reject){
+    var requestEthPrice =  https.request({ 
+    method: "GET",
+    //https://api.coinmarketcap.com/v2/ticker/1027/
+    host: "pro-api.coinmarketcap.com", //"api.intrinio.com",
+    path: "/v1/cryptocurrency/listings/latest", 
+    //"/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
+    headers: {
+        'X-CMC_PRO_API_KEY': '720dba1b-5c33-4371-97e5-2aa4ff539f37',
+    }
 
+}, function ethP(response) {
+    var json = "";
+    response.on('data', function (chunk) {
+        json += chunk;
+        
+    });
+  //  console.log(response);
+    response.on('end', function() {
+        ethData = JSON.parse(json);
+        price = ethData['data'][1]['quote']['USD']['price'];
+        vol = ethData['data'][1]['total_supply'];
+      //  console.log(ethData);
+ //       console.log(price);
+        resolve(vol);
+    });
+});
 /*const express = require('express'); //create express sender object
 const app = express();//create express object
 const port = 3000; //set the localhost port

@@ -1,5 +1,4 @@
 // Other techniques for learning
-const Matrix = require("./Matrix");
 
 class ActivationFunction {
   constructor(func, dfunc) {
@@ -18,13 +17,14 @@ let tanh = new ActivationFunction(
   y => 1 - (y * y)
 );
 
-class nn {
+
+class NeuralNetwork {
   /*
-  * if first argument is a nn the constructor clones it
-  * USAGE: cloned_nn = new nn(to_clone_nn);
+  * if first argument is a NeuralNetwork the constructor clones it
+  * USAGE: cloned_nn = new NeuralNetwork(to_clone_nn);
   */
   constructor(in_nodes, hid_nodes, out_nodes) {
-    if (in_nodes instanceof nn) {
+    if (in_nodes instanceof NeuralNetwork) {
       let a = in_nodes;
       this.input_nodes = a.input_nodes;
       this.hidden_nodes = a.hidden_nodes;
@@ -150,7 +150,7 @@ class nn {
     if (typeof data == 'string') {
       data = JSON.parse(data);
     }
-    let nn = new nn(data.input_nodes, data.hidden_nodes, data.output_nodes);
+    let nn = new NeuralNetwork(data.input_nodes, data.hidden_nodes, data.output_nodes);
     nn.weights_ih = Matrix.deserialize(data.weights_ih);
     nn.weights_ho = Matrix.deserialize(data.weights_ho);
     nn.bias_h = Matrix.deserialize(data.bias_h);
@@ -162,7 +162,7 @@ class nn {
 
   // Adding function for neuro-evolution
   copy() {
-    return new nn(this);
+    return new NeuralNetwork(this);
   }
 
   // Accept an arbitrary function for mutation
@@ -173,5 +173,6 @@ class nn {
     this.bias_o.map(func);
   }
 
-}
-module.exports = nn;
+
+
+  module.exports = nn;
