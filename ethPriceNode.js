@@ -1,25 +1,156 @@
-//lol i need to talk to haynes about normalizing the price and the volume 
+// i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
-var https = require("https");
-
-const myModule = require('./matrix');
+const matrix = require('./matrix');
 const nn = require("./nn");
-let brain;
-brain  = new nn(3,3,3); //create a NN
-function predictPrice(vol, priceDelta, googtrends){
-    let inputs = [vol, priceDelta, googTrends];//I'll need to normalize all this stuff :)
-    let outputs = brain.predict(inputs);
-}
-async function getPrice(){
-    var ethP = await getEthPrice();
-    var ethV = await getEthVol();
-    console.log(ethP);
-    console.log(ethV);
+let brain  = new nn(3,3,2); //create a NN
+let PC;
+let newPC;
+//currents
+var previousPrice = 200;
+var previousVolume = 103099469.5616;
+var previousIntrest = 0.5; 
+//previous
+let currentPrice;
+let currentVolume;
+let currentIntrest;
+//deltas
+let deltaPrice;
+let deltaVolume;
+let deltaInterest;
+//normals
+let normalizedPriceIndex;
+let normalizedVolumeIndex;
+let normalizedInterest;
+async function updateNN(){
+    predictPrice();
+    
     
 
+}      
+
+async function predictPrice(){
+    currentPrice = await getEthPrice();
+    currentVolume = await getEthVol();
+    currentIntrest = await getGoogTrendsData();
+    console.log(currentPrice);
+    console.log(currentVolume);
+    console.log(currentIntrest);
+
+    let priceDelta = (currentPrice-previousPrice)/previousPrice;
+    console.log(priceDelta);
+    if(priceDelta<0){
+        normalizedPriceIndex = 0.5 - (priceDelta/2);
+    }
+    else{1111
+        normalizedPriceIndex = 0.5 + (priceDelta/2);
+    }
+    let volumeDelta = (currentVolume-previousVolume)/previousVolume;
+    if(volumeDelta<0){
+        normalizedVolumeIndex = 0.5 - (volumeDelta/2);
+    }
+    else{
+        normalizedVolumeIndex = 0.5 + (volumeDelta/2);
+    }
+    normalizedInterest = currentIntrest/100;
+
+    let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
+    console.log(inputs);
+    let outputs = brain.predict(inputs);
+    console.log(outputs);
+    if(outputs[0]>outputs[1]){ //[0,1] = the price will go down
+        newPC = 0; 
+        console.log("Price Will go up");
+    }
+    else{
+        newPC = 1;
+        console.log("Price Will go down");
+
+    }
+
+        if(PC == 0){
+        if(previousPrice>currentPrice){ //no gradiant here
+            //maybe feedback the difference between the normalized pricce deltas and the expected price delta
+            console.log("Price went down");
+            actualPriceChangeArr = [0,1];
+        }
+        else{
+            actualPriceChangeArr = [1,0];
+        }
+        }
+        else{
+            if(previousPrice<currentPrice){ 
+                //maybe feedback the difference between the normalized pricce deltas and the expected price delta
+                actualPriceChangeArr = [0,1];
+            }
+            else{
+                actualPriceChangeArr = [1,0];
+            }  
+        }
+        //here is where i need to normalize my data
+      /*  currentPrice = await getEthPrice();
+        currentVolume = await getEthVol();
+        currentIntrest = await getGoogTrendsData();*/
+        //let priceDelta = (currentPrice-previousPrice)/previousPrice;
+        if(priceDelta<0){
+            normalizedPriceIndex = 0.5 - (priceDelta/2);
+        }
+        else{
+            normalizedPriceIndex = 0.5 + (priceDelta/2);
+        }
+      //  let volumeDelta = (currentVolume-previousVolume)/previousVolume;
+        if(volumeDelta<0){
+            normalizedVolumeIndex = 0.5 - (volumeDelta/2);
+        }
+        else{
+            normalizedVolumeIndex = 0.5 + (volumeDelta/2);
+        }
+        normalizedInterest = currentIntrest/100;
+    
+    //    let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
+    
+        brain.train(inputs, actualPriceChangeArr);
+        previousPrice = currentPrice;
+        previousVolume = currentVolume;
+        previousIntrest = currentIntrest;
+        PC = newPC;
+    
+}
+//Google TRends data
+const googleTrends = require('google-trends-api');
+var d = new Date();
+var year = d.getFullYear();
+var mon = d.getMonth()+1;
+var day = d.getDate();
+var dw = d.getDay();
+var jsonData;
+if(day<10){
+day = "0"+day;
 }
 
-setInterval(getPrice, 7000);
+async function printData(){
+  var interest = await getGoogTrendsData();
+  console.log(interest);
+}
+function getGoogTrendsData(){
+return new Promise (function(resolve, reject){
+googleTrends.interestOverTime({keyword: 'ethereum', catagory: 1179, startTime: new Date(Date.now() - (24 * 60 * 60 * 1000)), granularTimeResolution: true, geo: 'US'})
+.then((res) => {
+  jsonData = JSON.parse(res);
+  resolve(jsonData['default']['timelineData'][0]['value']);
+})
+.catch((err) => {
+  console.log(err);
+})
+});
+}
+//end google trends
+
+var https = require("https");
+
+                                                       
+
+
+setInterval(updateNN, 60*1000);
 //getPrice();
 var price;
 var pastPrice;
