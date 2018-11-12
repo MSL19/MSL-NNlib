@@ -5,6 +5,7 @@ const nn = require("./nn");
 let brain  = new nn(3,3,2); //create a NN
 let PC;
 let newPC;
+let previousInputs = [0.5,0.5,0.5];
 //currents
 var previousPrice = 200;
 var previousVolume = 103099469.5616;
@@ -37,20 +38,10 @@ async function predictPrice(){
     console.log(currentIntrest);
 
     let priceDelta = (currentPrice-previousPrice)/previousPrice;
-    console.log(priceDelta);
-    if(priceDelta<0){
-        normalizedPriceIndex = 0.5 - (priceDelta/2);
-    }
-    else{1111
-        normalizedPriceIndex = 0.5 + (priceDelta/2);
-    }
+    console.log("Price delta percent: "+priceDelta);
+    normalizedPriceIndex = 0.5 +priceDelta;//the price delta will be neg already so no nead to like try and add or subtract
     let volumeDelta = (currentVolume-previousVolume)/previousVolume;
-    if(volumeDelta<0){
-        normalizedVolumeIndex = 0.5 - (volumeDelta/2);
-    }
-    else{
-        normalizedVolumeIndex = 0.5 + (volumeDelta/2);
-    }
+    normalizedVolumeIndex = 0.5 + volumeDelta*10;
     normalizedInterest = currentIntrest/100;
 
     let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
@@ -70,10 +61,11 @@ async function predictPrice(){
         if(PC == 0){
         if(previousPrice>currentPrice){ //no gradiant here
             //maybe feedback the difference between the normalized pricce deltas and the expected price delta
-            console.log("Price went down");
+            console.log("Price was supposed to go up------Price went down---------------");
             actualPriceChangeArr = [0,1];
         }
         else{
+            console.log("Price was supposed to go up-------price went up------------------");
             actualPriceChangeArr = [1,0];
         }
         }
@@ -81,8 +73,11 @@ async function predictPrice(){
             if(previousPrice<currentPrice){ 
                 //maybe feedback the difference between the normalized pricce deltas and the expected price delta
                 actualPriceChangeArr = [0,1];
+                console.log("price was supposed to go down--------price went up------------------");
+
             }
             else{
+                console.log("price was supposed to go down----------Price went down---------------");
                 actualPriceChangeArr = [1,0];
             }  
         }
@@ -91,7 +86,7 @@ async function predictPrice(){
         currentVolume = await getEthVol();
         currentIntrest = await getGoogTrendsData();*/
         //let priceDelta = (currentPrice-previousPrice)/previousPrice;
-        if(priceDelta<0){
+    /*    if(priceDelta<0){
             normalizedPriceIndex = 0.5 - (priceDelta/2);
         }
         else{
@@ -105,14 +100,16 @@ async function predictPrice(){
             normalizedVolumeIndex = 0.5 + (volumeDelta/2);
         }
         normalizedInterest = currentIntrest/100;
-    
+    */
     //    let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
     
-        brain.train(inputs, actualPriceChangeArr);
+        brain.train(previousInputs, actualPriceChangeArr);
         previousPrice = currentPrice;
         previousVolume = currentVolume;
         previousIntrest = currentIntrest;
         PC = newPC;
+        previousInputs = inputs;
+        console.log("\n");
     
 }
 //Google TRends data
@@ -150,7 +147,7 @@ var https = require("https");
                                                        
 
 
-setInterval(updateNN, 60*1000);
+setInterval(updateNN, 20000);
 //getPrice();
 var price;
 var pastPrice;
