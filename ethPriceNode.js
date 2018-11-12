@@ -7,13 +7,14 @@ let PC;
 let newPC;
 let previousInputs = [0.5,0.5,0.5];
 //currents
+let bigString = {};
 var previousPrice = 200;
 var previousVolume = 103099469.5616;
 var previousIntrest = 0.5; 
 //previous
 let currentPrice;
 let currentVolume;
-let currentIntrest;
+let currentIntrest = 50;
 //deltas
 let deltaPrice;
 let deltaVolume;
@@ -30,15 +31,19 @@ async function updateNN(){
 }      
 
 async function predictPrice(){
+    bigString = {};
     currentPrice = await getEthPrice();
     currentVolume = await getEthVol();
     currentIntrest = await getGoogTrendsData();
     console.log(currentPrice);
     console.log(currentVolume);
     console.log(currentIntrest);
-
+    bigString["currentPrice"] = currentPrice;
+    bigString["currentVolume"] = currentVolume;
+    bigString["currentIntrest"] =  currentIntrest;
     let priceDelta = (currentPrice-previousPrice)/previousPrice;
     console.log("Price delta percent: "+priceDelta);
+    bigString["priceDelta"] = priceDelta;
     normalizedPriceIndex = 0.5 +priceDelta;//the price delta will be neg already so no nead to like try and add or subtract
     let volumeDelta = (currentVolume-previousVolume)/previousVolume;
     normalizedVolumeIndex = 0.5 + volumeDelta*10;
@@ -46,11 +51,14 @@ async function predictPrice(){
 
     let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
     console.log(inputs);
+    bigString["inputs"] = inputs;
     let outputs = brain.predict(inputs);
+    bigString["outputs"]  = outputs;
     console.log(outputs);
     if(outputs[0]>outputs[1]){ //[0,1] = the price will go down
         newPC = 0; 
         console.log("Price Will go up");
+   
     }
     else{
         newPC = 1;
@@ -63,10 +71,14 @@ async function predictPrice(){
             //maybe feedback the difference between the normalized pricce deltas and the expected price delta
             console.log("Price was supposed to go up------Price went down---------------");
             actualPriceChangeArr = [0,1];
+            bigString[printStatement] ="Price was supposed to go up------Price went down---------------" + "\n" +"\n";
         }
+    
         else{
             console.log("Price was supposed to go up-------price went up------------------");
             actualPriceChangeArr = [1,0];
+            
+            bigString[printStatement] += "Price was supposed to go up------Price went up---------------" + "\n" +"\n";
         }
         }
         else{
@@ -74,10 +86,13 @@ async function predictPrice(){
                 //maybe feedback the difference between the normalized pricce deltas and the expected price delta
                 actualPriceChangeArr = [0,1];
                 console.log("price was supposed to go down--------price went up------------------");
-
+                
+                bigString[printStatement] += "Price was supposed to go down------Price went up---------------" + "\n" +"\n";
             }
             else{
                 console.log("price was supposed to go down----------Price went down---------------");
+                
+                bigString[printStatement] += "Price was supposed to go down------Price went down---------------" + "\n" +"\n";
                 actualPriceChangeArr = [1,0];
             }  
         }
@@ -147,7 +162,7 @@ var https = require("https");
                                                        
 
 
-setInterval(updateNN, 2000);
+setInterval(updateNN, 7000);
 //getPrice();
 var price;
 var pastPrice;
@@ -225,6 +240,12 @@ request.end();*/
 requestEthPrice.end();
     });
 }
+const express = require('express'); //create express sender object
+const app = express();//create express object
+const port = 3030; //set the localhost port
+app.get('/', (req, res) => res.json(bigString)); //send the data--make sure to convert to a string
+app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
+
 /* //this works but for now I'm not including it while I do my stuff
 const googleTrends = require('google-trends-api');
 googleTrends.relatedTopics({keyword: 'Apple', startTime: new Date('2018-10-19'), endTime: new Date(Date.now())})
