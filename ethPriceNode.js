@@ -38,7 +38,6 @@ async function predictPrice(){
     console.log(currentPrice);
     console.log(currentVolume);
     console.log(currentIntrest);
-<<<<<<< HEAD
     var today = new Date();
     var h = today.getHours();
     var m = today.getMinutes();
@@ -46,8 +45,6 @@ async function predictPrice(){
     
     console.log("Time: "+h+":"+m+":"+s);
    
-=======
->>>>>>> parent of d3331dd... Ready to work on the whole problem of hosting this garbage on a server somewhere.....
 
     let priceDelta = (currentPrice-previousPrice)/previousPrice;
     console.log("Price delta percent: "+priceDelta);
@@ -167,11 +164,7 @@ var https = require("https");
                                                        
 
 
-<<<<<<< HEAD
 setInterval(updateNN, 1000);
-=======
-setInterval(updateNN, 20000);
->>>>>>> parent of d3331dd... Ready to work on the whole problem of hosting this garbage on a server somewhere.....
 //getPrice();
 var price;
 var pastPrice;
