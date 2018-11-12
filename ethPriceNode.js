@@ -5,11 +5,7 @@ const nn = require("./nn");
 let brain  = new nn(3,3,2); //create a NN
 let PC;
 let newPC;
-<<<<<<< HEAD
-let bigSTRING = "";
 let previousInputs = [0.5,0.5,0.5];
-=======
->>>>>>> parent of 5e4825b... improved (fixed) the NN
 //currents
 var previousPrice = 200;
 var previousVolume = 103099469.5616;
@@ -34,7 +30,6 @@ async function updateNN(){
 }      
 
 async function predictPrice(){
-    bigSTRING = "";
     currentPrice = await getEthPrice();
     currentVolume = await getEthVol();
     currentIntrest = await getGoogTrendsData();
@@ -43,34 +38,19 @@ async function predictPrice(){
     console.log(currentIntrest);
 
     let priceDelta = (currentPrice-previousPrice)/previousPrice;
-    console.log(priceDelta);
-    if(priceDelta<0){
-        normalizedPriceIndex = 0.5 - (priceDelta/2);
-    }
-    else{1111
-        normalizedPriceIndex = 0.5 + (priceDelta/2);
-    }
+    console.log("Price delta percent: "+priceDelta);
+    normalizedPriceIndex = 0.5 +priceDelta;//the price delta will be neg already so no nead to like try and add or subtract
     let volumeDelta = (currentVolume-previousVolume)/previousVolume;
-    if(volumeDelta<0){
-        normalizedVolumeIndex = 0.5 - (volumeDelta/2);
-    }
-    else{
-        normalizedVolumeIndex = 0.5 + (volumeDelta/2);
-    }
+    normalizedVolumeIndex = 0.5 + volumeDelta*10;
     normalizedInterest = currentIntrest/100;
 
     let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
     console.log(inputs);
-    bigSTRING += inputs;
     let outputs = brain.predict(inputs);
-
     console.log(outputs);
-    bigSTRING += outputs;
     if(outputs[0]>outputs[1]){ //[0,1] = the price will go down
         newPC = 0; 
         console.log("Price Will go up");
-        
-        
     }
     else{
         newPC = 1;
@@ -81,28 +61,24 @@ async function predictPrice(){
         if(PC == 0){
         if(previousPrice>currentPrice){ //no gradiant here
             //maybe feedback the difference between the normalized pricce deltas and the expected price delta
-            console.log("Price went down");
+            console.log("Price was supposed to go up------Price went down---------------");
             actualPriceChangeArr = [0,1];
-            bigSTRING += "Price was supposed to go up------Price went down---------------";
         }
         else{
+            console.log("Price was supposed to go up-------price went up------------------");
             actualPriceChangeArr = [1,0];
-            bigSTRING += "Price was supposed to go up-------price went up------------------";
         }
         }
         else{
             if(previousPrice<currentPrice){ 
                 //maybe feedback the difference between the normalized pricce deltas and the expected price delta
                 actualPriceChangeArr = [0,1];
-<<<<<<< HEAD
                 console.log("price was supposed to go down--------price went up------------------");
-                bigSTRING += "price was supposed to go down--------price went up------------------";
-=======
->>>>>>> parent of 5e4825b... improved (fixed) the NN
+
             }
             else{
+                console.log("price was supposed to go down----------Price went down---------------");
                 actualPriceChangeArr = [1,0];
-                bigSTRING+="price was supposed to go down----------Price went down---------------\n";
             }  
         }
         //here is where i need to normalize my data
@@ -110,7 +86,7 @@ async function predictPrice(){
         currentVolume = await getEthVol();
         currentIntrest = await getGoogTrendsData();*/
         //let priceDelta = (currentPrice-previousPrice)/previousPrice;
-        if(priceDelta<0){
+    /*    if(priceDelta<0){
             normalizedPriceIndex = 0.5 - (priceDelta/2);
         }
         else{
@@ -124,14 +100,16 @@ async function predictPrice(){
             normalizedVolumeIndex = 0.5 + (volumeDelta/2);
         }
         normalizedInterest = currentIntrest/100;
-    
+    */
     //    let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
     
-        brain.train(inputs, actualPriceChangeArr);
+        brain.train(previousInputs, actualPriceChangeArr);
         previousPrice = currentPrice;
         previousVolume = currentVolume;
         previousIntrest = currentIntrest;
         PC = newPC;
+        previousInputs = inputs;
+        console.log("\n");
     
 }
 //Google TRends data
@@ -169,7 +147,7 @@ var https = require("https");
                                                        
 
 
-setInterval(updateNN, 60*1000);
+setInterval(updateNN, 2000);
 //getPrice();
 var price;
 var pastPrice;
@@ -235,21 +213,18 @@ function getEthVol(){
         resolve(vol);
     });
 });
-    
+/*const express = require('express'); //create express sender object
+const app = express();//create express object
+const port = 3000; //set the localhost port
+app.get('/', (req, res) => res.send(price.toString())); //send the data--make sure to convert to a string
+app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
 //express 
 //ejs
 //do it with this URL: https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&interval=1min&apikey=4YCOZN9E28NT4HJL
- request.end();
- requestEthVol.end();
-});
+request.end();*/
+requestEthPrice.end();
+    });
 }
-/*const express = require('express'); //create express sender object
-const app = express();//create express object
-const port = 3030; //set the localhost port
-
-app.get('/', (req, res) => res.send(bigSTRING)); //send the data--make sure to convert to a string
-app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
-//express 
 /* //this works but for now I'm not including it while I do my stuff
 const googleTrends = require('google-trends-api');
 googleTrends.relatedTopics({keyword: 'Apple', startTime: new Date('2018-10-19'), endTime: new Date(Date.now())})
