@@ -1,5 +1,5 @@
 // Other techniques for learning
-const Matrix = require("./Matrix");
+const Matrix = require("./matrix");
 
 class ActivationFunction {
   constructor(func, dfunc) {
