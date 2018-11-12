@@ -10,10 +10,11 @@ let previousInputs = [0.5,0.5,0.5];
 //currents
 var previousPrice = 200;
 var previousVolume = 103099469.5616;
+var previousIntrest = 0.5; 
 //previous
 let currentPrice;
 let currentVolume;
-let currentIntrest = 50;
+let currentIntrest;
 //deltas
 let deltaPrice;
 let deltaVolume;
@@ -34,10 +35,10 @@ async function predictPrice(){
     currentPrice = await getEthPrice();
     currentVolume = await getEthVol();
     currentIntrest = await getGoogTrendsData();
-    console.log()
     console.log(currentPrice);
     console.log(currentVolume);
     console.log(currentIntrest);
+<<<<<<< HEAD
     var today = new Date();
     var h = today.getHours();
     var m = today.getMinutes();
@@ -45,10 +46,12 @@ async function predictPrice(){
     
     console.log("Time: "+h+":"+m+":"+s);
    
+=======
+>>>>>>> parent of d3331dd... Ready to work on the whole problem of hosting this garbage on a server somewhere.....
 
     let priceDelta = (currentPrice-previousPrice)/previousPrice;
     console.log("Price delta percent: "+priceDelta);
-    normalizedPriceIndex = 0.5 +(priceDelta*5);//the price delta will be neg already so no nead to like try and add or subtract
+    normalizedPriceIndex = 0.5 +priceDelta;//the price delta will be neg already so no nead to like try and add or subtract
     let volumeDelta = (currentVolume-previousVolume)/previousVolume;
     normalizedVolumeIndex = 0.5 + volumeDelta*10;
     normalizedInterest = currentIntrest/100;
@@ -164,7 +167,11 @@ var https = require("https");
                                                        
 
 
+<<<<<<< HEAD
 setInterval(updateNN, 1000);
+=======
+setInterval(updateNN, 20000);
+>>>>>>> parent of d3331dd... Ready to work on the whole problem of hosting this garbage on a server somewhere.....
 //getPrice();
 var price;
 var pastPrice;
