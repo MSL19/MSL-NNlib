@@ -5,6 +5,7 @@ const nn = require("./nn");
 let brain  = new nn(3,3,2); //create a NN
 let PC;
 let newPC;
+let bigSTRING = "";
 let previousInputs = [0.5,0.5,0.5];
 //currents
 var previousPrice = 200;
@@ -29,6 +30,7 @@ async function updateNN(){
 }      
 
 async function predictPrice(){
+    bigSTRING = "";
     currentPrice = await getEthPrice();
     currentVolume = await getEthVol();
     currentIntrest = await getGoogTrendsData();
@@ -40,6 +42,7 @@ async function predictPrice(){
     var h = today.getHours();
     var m = today.getMinutes();
     var s = today.getSeconds();
+    
     console.log("Time: "+h+":"+m+":"+s);
    
 
@@ -52,11 +55,16 @@ async function predictPrice(){
 
     let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
     console.log(inputs);
+    bigSTRING += inputs;
     let outputs = brain.predict(inputs);
+
     console.log(outputs);
+    bigSTRING += outputs;
     if(outputs[0]>outputs[1]){ //[0,1] = the price will go down
         newPC = 0; 
         console.log("Price Will go up");
+        
+        
     }
     else{
         newPC = 1;
@@ -69,10 +77,12 @@ async function predictPrice(){
             //maybe feedback the difference between the normalized pricce deltas and the expected price delta
             console.log("Price was supposed to go up------Price went down---------------");
             actualPriceChangeArr = [0,1];
+            bigSTRING += "Price was supposed to go up------Price went down---------------";
         }
         else{
             console.log("Price was supposed to go up-------price went up------------------");
             actualPriceChangeArr = [1,0];
+            bigSTRING += "Price was supposed to go up-------price went up------------------";
         }
         }
         else{
@@ -80,11 +90,12 @@ async function predictPrice(){
                 //maybe feedback the difference between the normalized pricce deltas and the expected price delta
                 actualPriceChangeArr = [0,1];
                 console.log("price was supposed to go down--------price went up------------------");
-
+                bigSTRING += "price was supposed to go down--------price went up------------------";
             }
             else{
                 console.log("price was supposed to go down----------Price went down---------------");
                 actualPriceChangeArr = [1,0];
+                bigSTRING+="price was supposed to go down----------Price went down---------------\n";
             }  
         }
         //here is where i need to normalize my data
@@ -153,7 +164,7 @@ var https = require("https");
                                                        
 
 
-setInterval(updateNN, 500);
+setInterval(updateNN, 1000);
 //getPrice();
 var price;
 var pastPrice;
@@ -219,19 +230,21 @@ function getEthVol(){
         resolve(vol);
     });
 });
-/*const express = require('express'); //create express sender object
-const app = express();//create express object
-const port = 3000; //set the localhost port
-
-app.get('/', (req, res) => res.send(price.toString())); //send the data--make sure to convert to a string
-app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
+    
 //express 
 //ejs
 //do it with this URL: https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&interval=1min&apikey=4YCOZN9E28NT4HJL
-request.end();*/
-requestEthPrice.end();
-    });
+ request.end();
+ requestEthVol.end();
+});
 }
+/*const express = require('express'); //create express sender object
+const app = express();//create express object
+const port = 3030; //set the localhost port
+
+app.get('/', (req, res) => res.send(bigSTRING)); //send the data--make sure to convert to a string
+app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
+//express 
 /* //this works but for now I'm not including it while I do my stuff
 const googleTrends = require('google-trends-api');
 googleTrends.relatedTopics({keyword: 'Apple', startTime: new Date('2018-10-19'), endTime: new Date(Date.now())})
