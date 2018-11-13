@@ -5,6 +5,8 @@ const nn = require("./nn");
 let brain  = new nn(3,3,2); //create a NN
 let PC;
 let newPC;
+let avgCorrect = 0;
+let numTotal = 0;
 let previousInputs = [0.5,0.5,0.5];
 //currents
 let bigString = {};
@@ -31,6 +33,8 @@ async function updateNN(){
 }      
 
 async function predictPrice(){
+    numTotal++;
+    bigString["totalRuns"] = numTotal;
     bigString = {};
     currentPrice = await getEthPrice();
     currentVolume = await getEthVol();
@@ -44,7 +48,7 @@ async function predictPrice(){
     let priceDelta = (currentPrice-previousPrice)/previousPrice;
     console.log("Price delta percent: "+priceDelta);
     bigString["priceDelta"] = priceDelta;
-    normalizedPriceIndex = 0.5 +priceDelta;//the price delta will be neg already so no nead to like try and add or subtract
+    normalizedPriceIndex = 0.5 +(priceDelta*5);//the price delta will be neg already so no nead to like try and add or subtract
     let volumeDelta = (currentVolume-previousVolume)/previousVolume;
     normalizedVolumeIndex = 0.5 + volumeDelta*10;
     normalizedInterest = currentIntrest/100;
@@ -71,14 +75,15 @@ async function predictPrice(){
             //maybe feedback the difference between the normalized pricce deltas and the expected price delta
             console.log("Price was supposed to go up------Price went down---------------");
             actualPriceChangeArr = [0,1];
-            bigString[printStatement] ="Price was supposed to go up------Price went down---------------" + "\n" +"\n";
+            bigString["printStatement"] ="Price was supposed to go up------Price went down---------------" + "\n" +"\n";
         }
     
         else{
             console.log("Price was supposed to go up-------price went up------------------");
             actualPriceChangeArr = [1,0];
+            avgCorrect++;
             
-            bigString[printStatement] += "Price was supposed to go up------Price went up---------------" + "\n" +"\n";
+            bigString["printStatement"] = "Price was supposed to go up------Price went up---------------" + "\n" +"\n";
         }
         }
         else{
@@ -87,12 +92,12 @@ async function predictPrice(){
                 actualPriceChangeArr = [0,1];
                 console.log("price was supposed to go down--------price went up------------------");
                 
-                bigString[printStatement] += "Price was supposed to go down------Price went up---------------" + "\n" +"\n";
+                bigString["printStatement"] = "Price was supposed to go down------Price went up---------------" + "\n" +"\n";
             }
             else{
                 console.log("price was supposed to go down----------Price went down---------------");
-                
-                bigString[printStatement] += "Price was supposed to go down------Price went down---------------" + "\n" +"\n";
+                avgCorrect++;
+                bigString["printStatement"] = "Price was supposed to go down------Price went down---------------" + "\n" +"\n";
                 actualPriceChangeArr = [1,0];
             }  
         }
@@ -123,6 +128,7 @@ async function predictPrice(){
         previousVolume = currentVolume;
         previousIntrest = currentIntrest;
         PC = newPC;
+        bigString["numCorrect"] = avgCorrect;
         previousInputs = inputs;
         console.log("\n");
     
@@ -162,7 +168,7 @@ var https = require("https");
                                                        
 
 
-setInterval(updateNN, 7000);
+setInterval(updateNN, 30*60*1000);
 //getPrice();
 var price;
 var pastPrice;
