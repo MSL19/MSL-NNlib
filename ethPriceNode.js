@@ -34,8 +34,8 @@ async function updateNN(){
 
 async function predictPrice(){
     numTotal++;
-    bigString["totalRuns"] = numTotal;
     bigString = {};
+    bigString["totalRuns"] = numTotal;
     currentPrice = await getEthPrice();
     currentVolume = await getEthVol();
     currentIntrest = await getGoogTrendsData();
@@ -168,7 +168,7 @@ var https = require("https");
                                                        
 
 
-setInterval(updateNN, 30*60*1000);
+setInterval(updateNN, 20*60*1000);
 //getPrice();
 var price;
 var pastPrice;
