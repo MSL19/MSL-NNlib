@@ -48,9 +48,9 @@ async function predictPrice(){
     let priceDelta = (currentPrice-previousPrice)/previousPrice;
     console.log("Price delta percent: "+priceDelta);
     bigString["priceDelta"] = priceDelta;
-    normalizedPriceIndex = 0.5 +(priceDelta*5);//the price delta will be neg already so no nead to like try and add or subtract
+    normalizedPriceIndex = 0.5 +(priceDelta*10);//the price delta will be neg already so no nead to like try and add or subtract
     let volumeDelta = (currentVolume-previousVolume)/previousVolume;
-    normalizedVolumeIndex = 0.5 + volumeDelta*10;
+    normalizedVolumeIndex = 0.5 + volumeDelta*20;
     normalizedInterest = currentIntrest/100;
 
     let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
@@ -168,7 +168,7 @@ var https = require("https");
                                                        
 
 
-setInterval(updateNN, 20*60*1000);
+setInterval(updateNN, 30*60*1000);
 //getPrice();
 var price;
 var pastPrice;
