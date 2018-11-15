@@ -1,10 +1,102 @@
+var d = new Date();
+var https = require("https");
+
+var year = d.getFullYear();
+var mon = d.getMonth()+1;
+var day = d.getDate();
+var company;
+var pastP = [];
+var hours = d.getHours()+2;
+var minutes = d.getMinutes();
+if(minutes<30){
+    minutes = "00";
+}
+else{
+    minutes = "30";
+}
+var time = hours+":"+minutes+":00";
+
+var dw = d.getDay();
+if(dw==6){ //stocks don't trade over the weekend
+day--;
+}
+if(dw==0){
+day-=2;
+}
+if(day<10){
+day = "0"+day;
+}
+var date = year+"-"+mon+"-"+day;
+function getStockPrice(){
+return new Promise(function(resolve, reject){
+var request = https.request({
+    method: "GET",
+    host: "www.alphavantage.co", //"api.intrinio.com",
+    path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=4YCOZN9E28NT4HJL", 
+    //"/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
+   /* headers: {
+        "Authorization": auth
+    }*/
+
+}, function(response) {
+    var json = "";
+    response.on('data', function (chunk) {
+        json += chunk;
+    });
+    response.on('end', function() {
+        company = JSON.parse(json);
+        var openP;
+
+        openP = company['Time Series (30min)'][date+' '+time]['4. close'];
+        resolve(openP);
+        // console.log(company);
+        //return openP;
+    });
+});
+request.end();
+});
+}
+function getStockVolume(){
+    return new Promise(function(resolve, reject){
+    var request = https.request({
+        method: "GET",
+        host: "www.alphavantage.co", //"api.intrinio.com",
+        path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=4YCOZN9E28NT4HJL", 
+        //"/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
+       /* headers: {
+            "Authorization": auth
+        }*/
+    
+    }, function(response) {
+        var json = "";
+        response.on('data', function (chunk) {
+            json += chunk;
+        });
+        response.on('end', function() {
+            company = JSON.parse(json);
+            var volume;
+            volume = company['Time Series (30min)'][date+' '+time]['5. volume'];
+            resolve(volume);
+            // console.log(company);
+            //return openP;
+        });
+    });
+    request.end();
+    });
+    }
+async function getStockPriceTest(){
+    var test = await getStockPrice();
+    var vol = await getStockVolume()
+    console.log(test);
+    console.log(vol);
+}
+getStockPriceTest();
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
 const nn = require("./nn");
 let brain  = new nn(3,3,2); //create a NN
 let PC;
-let BiggestString;
 let newPC;
 let avgCorrect = 0;
 let numTotal = 0;
@@ -37,8 +129,8 @@ async function predictPrice(){
     numTotal++;
     bigString = {};
     bigString["totalRuns"] = numTotal;
-    currentPrice = await getEthPrice();
-    currentVolume = await getEthVol();
+    currentPrice = await getStockPrice();
+    currentVolume = await getStockVolume();
     currentIntrest = await getGoogTrendsData();
     console.log(currentPrice);
     console.log(currentVolume);
@@ -63,12 +155,11 @@ async function predictPrice(){
     if(outputs[0]>outputs[1]){ //[0,1] = the price will go down
         newPC = 0; 
         console.log("Price Will go up");
-        bigString['prediction'] = "Price Will go up";
+   
     }
     else{
         newPC = 1;
         console.log("Price Will go down");
-        bigString['prediction'] = "Price Will go down";
 
     }
 
@@ -133,8 +224,6 @@ async function predictPrice(){
         bigString["numCorrect"] = avgCorrect;
         previousInputs = inputs;
         console.log("\n");
-        BiggestString += bigString.toString();
-        
     
 }
 //Google TRends data
@@ -155,7 +244,7 @@ async function printData(){
 }
 function getGoogTrendsData(){
 return new Promise (function(resolve, reject){
-googleTrends.interestOverTime({keyword: 'ethereum', catagory: 1179, startTime: new Date(Date.now() - (24 * 60 * 60 * 1000)), granularTimeResolution: true, geo: 'US'})
+googleTrends.interestOverTime({keyword: 'apple', catagory: 1179, startTime: new Date(Date.now() - (24 * 60 * 60 * 1000)), granularTimeResolution: true, geo: 'US'})
 .then((res) => {
   jsonData = JSON.parse(res);
   resolve(jsonData['default']['timelineData'][0]['value']);
@@ -172,92 +261,13 @@ var https = require("https");
                                                        
 
 
-setInterval(updateNN, 5000);
+//setInterval(updateNN, 30*60*1000);
 //getPrice();
-var price;
-var pastPrice;
-var vol
-var ethData;
-var pastP = [];
-function getEthPrice(){
-    return new Promise(function(resolve, reject){
-    var requestEthPrice =  https.request({ 
-    method: "GET",
-    //https://api.coinmarketcap.com/v2/ticker/1027/
-    host: "pro-api.coinmarketcap.com", //"api.intrinio.com",
-    path: "/v1/cryptocurrency/listings/latest", 
-    //"/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
-    headers: {
-        'X-CMC_PRO_API_KEY': '720dba1b-5c33-4371-97e5-2aa4ff539f37',
-    }
 
-}, function ethP(response) {
-    var json = "";
-    response.on('data', function (chunk) {
-        json += chunk;
-        
-    });
-  //  console.log(response);
-    response.on('end', function() {
-        ethData = JSON.parse(json);
-      //  price = ethData['data'][1]['quote']['USD']['price']; //lol this method sucks if the market cap switches w/ another crypto currency
-        var propperPrice = ethData['data'].filter((el) => el.name === "Ethereum")[0]['quote']['USD']['price'];//['quote']['USD']['price'];
-    //    console.log("Maga"+propperPrice);
-       // vol = ethData['data'][1]['total_supply'];
-      //  console.log(ethData);
- //       console.log(price);
-        resolve(propperPrice);
-    });
-});
-requestEthPrice.end();
-    });
-}
-function getEthVol(){
-    return new Promise(function(resolve, reject){
-    var requestEthPrice =  https.request({ 
-    method: "GET",
-    //https://api.coinmarketcap.com/v2/ticker/1027/
-    host: "pro-api.coinmarketcap.com", //"api.intrinio.com",
-    path: "/v1/cryptocurrency/listings/latest", 
-    //"/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
-    headers: {
-        'X-CMC_PRO_API_KEY': '720dba1b-5c33-4371-97e5-2aa4ff539f37',
-    }
-
-}, function ethP(response) {
-    var json = "";
-    response.on('data', function (chunk) {
-        json += chunk;
-        
-    });
-  //  console.log(response);
-    response.on('end', function() {
-        ethData = JSON.parse(json);
-        ///price = ethData['data'][1]['quote']['USD']['price'];
-       // vol = ethData['data'][1]['total_supply']; //this method sucks
- //      //  console.log(ethData);
- //       console.log(price);
-        var propperVol = ethData['data'].filter((el) => el.name === "Ethereum")[0]['total_supply'];
-      //  console.log("maga"+propperVol);
-        resolve(propperVol);
-    });
-});
-/*const express = require('express'); //create express sender object
-const app = express();//create express object
-const port = 3000; //set the localhost port
-app.get('/', (req, res) => res.send(price.toString())); //send the data--make sure to convert to a string
-app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
-//express 
-//ejs
-//do it with this URL: https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&interval=1min&apikey=4YCOZN9E28NT4HJL
-request.end();*/
-requestEthPrice.end();
-    });
-}
 const express = require('express'); //create express sender object
 const app = express();//create express object
 const port = 3030; //set the localhost port
-app.get('/', (req, res) => res.json(bigString), res.send(BiggestString)); //send the data--make sure to convert to a string
+app.get('/', (req, res) => res.json(bigString)); //send the data--make sure to convert to a string
 app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
 
 /* //this works but for now I'm not including it while I do my stuff
