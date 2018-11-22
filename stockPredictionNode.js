@@ -1,20 +1,31 @@
-var d = new Date();
 var https = require("https");
 
-var year = d.getFullYear();
-var mon = d.getMonth()+1;
-var day = d.getDate();
+let d;
 var company;
+let marketOpen;
 var pastP = [];
-var hours = d.getHours()+2;
-var minutes = d.getMinutes();
+let date;
+let time;
+let year;
+let mon;
+let day;
+let minutes;
+let minutesT;
+function updateTime(){
+    d = new Date();
+    year = d.getFullYear();
+    mon = d.getMonth()+1;
+    day = d.getDate();
+    hours = d.getHours()+2;
+    minutes = d.getMinutes();
+
 if(minutes<30){
-    minutes = "00";
+     minutesT = "00";
 }
 else{
-    minutes = "30";
+     minutesT = "30";
 }
-var time = hours+":"+minutes+":00";
+time = hours+":"+minutesT+":00";
 
 var dw = d.getDay();
 if(dw==6){ //stocks don't trade over the weekend
@@ -26,7 +37,8 @@ day-=2;
 if(day<10){
 day = "0"+day;
 }
-var date = year+"-"+mon+"-"+day;
+date = year+"-"+mon+"-"+day;
+}
 function getStockPrice(){
 return new Promise(function(resolve, reject){
 var request = https.request({
@@ -45,11 +57,20 @@ var request = https.request({
     });
     response.on('end', function() {
         company = JSON.parse(json);
-        var openP;
-
-        openP = company['Time Series (30min)'][date+' '+time]['4. close'];
+        //console.log(company);
+        let openP;
+        
+        updateTime();
+        let timeStr = date+' '+time;
+        let lastRef = company['Meta Data']['3. Last Refreshed'];
+        console.log(lastRef);
+        if(lastRef == timeStr){
+            openP = company['Time Series (30min)'][timeStr]['4. close']; //[date+' '+time]['4. close'];
+        }
+        else{
+            openP = 0;
+        }
         resolve(openP);
-        // console.log(company);
         //return openP;
     });
 });
@@ -74,11 +95,19 @@ function getStockVolume(){
         });
         response.on('end', function() {
             company = JSON.parse(json);
-            var volume;
-            volume = company['Time Series (30min)'][date+' '+time]['5. volume'];
+            //console.log(company);
+            let volume;
+            updateTime();
+            let timeStr = date+' '+time;
+            let lastRef = company['Meta Data']['3. Last Refreshed'];
+            console.log(lastRef);
+            if(lastRef == timeStr){
+                volume = company['Time Series (30min)'][timeStr]['4. close']; //[date+' '+time]['4. close'];
+            }
+            else{
+                volume = 0;
+            }
             resolve(volume);
-            // console.log(company);
-            //return openP;
         });
     });
     request.end();
@@ -86,11 +115,12 @@ function getStockVolume(){
     }
 async function getStockPriceTest(){
     var test = await getStockPrice();
-    var vol = await getStockVolume()
+    var vol = await getStockVolume();
     console.log(test);
     console.log(vol);
+    console.log(minutes);
 }
-getStockPriceTest();
+setInterval(getStockPriceTest, 3000);
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
@@ -228,11 +258,11 @@ async function predictPrice(){
 }
 //Google TRends data
 const googleTrends = require('google-trends-api');
-var d = new Date();
-var year = d.getFullYear();
-var mon = d.getMonth()+1;
-var day = d.getDate();
-var dw = d.getDay();
+d = new Date();
+year = d.getFullYear();
+mon = d.getMonth()+1;
+day = d.getDate();
+dw = d.getDay();
 var jsonData;
 if(day<10){
 day = "0"+day;
