@@ -7,6 +7,7 @@ var pastP = [];
 let date;
 let time;
 let year;
+let SMopen;
 let mon;
 let day;
 let minutes;
@@ -65,10 +66,11 @@ var request = https.request({
         let lastRef = company['Meta Data']['3. Last Refreshed'];
         console.log(lastRef);
         if(lastRef == timeStr){
+            SMopen = true;
             openP = company['Time Series (30min)'][timeStr]['4. close']; //[date+' '+time]['4. close'];
         }
         else{
-            openP = 0;
+            SMopen = false;
         }
         resolve(openP);
         //return openP;
@@ -99,13 +101,16 @@ function getStockVolume(){
             let volume;
             updateTime();
             let timeStr = date+' '+time;
+            console.log(timeStr);
             let lastRef = company['Meta Data']['3. Last Refreshed'];
             console.log(lastRef);
+          //  console.log(company);
             if(lastRef == timeStr){
-                volume = company['Time Series (30min)'][timeStr]['4. close']; //[date+' '+time]['4. close'];
+                SMopen = true;
+                volume = company['Time Series (30min)'][timeStr]['5. volume']; //[date+' '+time]['4. close'];
             }
             else{
-                volume = 0;
+                SMopen = false;
             }
             resolve(volume);
         });
@@ -120,7 +125,8 @@ async function getStockPriceTest(){
     console.log(vol);
     console.log(minutes);
 }
-setInterval(getStockPriceTest, 3000);
+
+setInterval(predictPrice, 30000);
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
@@ -133,8 +139,8 @@ let numTotal = 0;
 let previousInputs = [0.5,0.5,0.5];
 //currents
 let bigString = {};
-var previousPrice = 200;
-var previousVolume = 103099469.5616;
+var previousPrice = 171.0475;
+var previousVolume = 1544998;
 var previousIntrest = 0.5; 
 //previous
 let currentPrice;
@@ -162,12 +168,17 @@ async function predictPrice(){
     currentPrice = await getStockPrice();
     currentVolume = await getStockVolume();
     currentIntrest = await getGoogTrendsData();
+   
     console.log(currentPrice);
     console.log(currentVolume);
     console.log(currentIntrest);
     bigString["currentPrice"] = currentPrice;
     bigString["currentVolume"] = currentVolume;
     bigString["currentIntrest"] =  currentIntrest;
+    if(!SMopen){
+        bigString["printStatement"] = "Stockmarket is closed";       
+    }
+    else{
     let priceDelta = (currentPrice-previousPrice)/previousPrice;
     console.log("Price delta percent: "+priceDelta);
     bigString["priceDelta"] = priceDelta;
@@ -254,6 +265,7 @@ async function predictPrice(){
         bigString["numCorrect"] = avgCorrect;
         previousInputs = inputs;
         console.log("\n");
+    }
     
 }
 //Google TRends data
