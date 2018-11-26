@@ -17,9 +17,11 @@ function updateTime(){
     year = d.getFullYear();
     mon = d.getMonth()+1;
     day = d.getDate();
-    hours = d.getHours()+2;
-    minutes = d.getMinutes();
-
+    hours = d.getHours(); //for the kdsatp server i don't need to subtract 2
+    minutes = d.getMinutes()-10;
+if(minutes<0){
+    hours--;
+}
 if(minutes<30){
      minutesT = "00";
 }
