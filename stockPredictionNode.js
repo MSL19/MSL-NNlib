@@ -6,6 +6,7 @@ let marketOpen;
 var pastP = [];
 let date;
 let time;
+let lastRef;
 let year;
 let SMopen;
 let mon;
@@ -65,7 +66,7 @@ var request = https.request({
         
         updateTime();
         let timeStr = date+' '+time;
-        let lastRef = company['Meta Data']['3. Last Refreshed'];
+        lastRef = company['Meta Data']['3. Last Refreshed'];
         console.log(lastRef);
         if(lastRef == timeStr){
             SMopen = true;
@@ -104,7 +105,7 @@ function getStockVolume(){
             updateTime();
             let timeStr = date+' '+time;
             console.log(timeStr);
-            let lastRef = company['Meta Data']['3. Last Refreshed'];
+            lastRef = company['Meta Data']['3. Last Refreshed'];
             console.log(lastRef);
           //  console.log(company);
             if(lastRef == timeStr){
@@ -167,6 +168,7 @@ async function predictPrice(){
     numTotal++;
     bigString = {};
     bigString["totalRuns"] = numTotal;
+
     currentPrice = await getStockPrice();
     currentVolume = await getStockVolume();
     currentIntrest = await getGoogTrendsData();
@@ -177,6 +179,8 @@ async function predictPrice(){
     bigString["currentPrice"] = currentPrice;
     bigString["currentVolume"] = currentVolume;
     bigString["currentIntrest"] =  currentIntrest;
+    bigString["SYStime"] = time;
+    bigString["dataBaseTime"] = lastRef;
     if(!SMopen){
         bigString["printStatement"] = "Stockmarket is closed";       
     }
@@ -286,6 +290,7 @@ async function printData(){
   var interest = await getGoogTrendsData();
   console.log(interest);
 }
+
 function getGoogTrendsData(){
 return new Promise (function(resolve, reject){
 googleTrends.interestOverTime({keyword: 'apple', catagory: 1179, startTime: new Date(Date.now() - (24 * 60 * 60 * 1000)), granularTimeResolution: true, geo: 'US'})
