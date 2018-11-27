@@ -8,21 +8,21 @@ let date;
 let time;
 let lastRef;
 let year;
-let SMopen;
 let mon;
 let day;
 let minutes;
 let minutesT;
+let lastDBTime;
 function updateTime(){
     d = new Date();
     year = d.getFullYear();
     mon = d.getMonth()+1;
     day = d.getDate();
-    hours = d.getHours()-1; //for the kdsatp server i don't need to subtract 2
-    minutes = d.getMinutes()-10;
-if(minutes<0){
+    hours = d.getHours(); //for the kdsatp server i don't need to subtract 2
+    minutes = d.getMinutes();
+/*(minutes<0){
     hours--;
-}
+}*/
 if(minutes<30){
      minutesT = "00";
 }
@@ -75,13 +75,55 @@ var request = https.request({
         else{
             SMopen = false;
         }
-        resolve(openP);
+        resolve(SMopen);
         //return openP;
     });
 });
 request.end();
 });
 }
+function dataBaseCheck(){
+    return new Promise(function(resolve, reject){
+    var request = https.request({
+        method: "GET",
+        host: "www.alphavantage.co", //"api.intrinio.com",
+        path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=4YCOZN9E28NT4HJL", 
+        //"/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
+       /* headers: {
+            "Authorization": auth
+        }*/
+    
+    }, function(response) {
+        var json = "";
+        response.on('data', function (chunk) {
+            json += chunk;
+        });
+        response.on('end', function() {
+            company = JSON.parse(json);
+            //console.log(company);
+            let SMupdateBool; 
+           
+            
+            lastRef = company['Meta Data']['3. Last Refreshed'];
+            console.log(lastRef);
+            if(lastRef !== lastDBTime){
+                SMupdateBool = true;
+                lastDBTime = lastRef;
+            }
+            else{
+                SMupdateBool = false;
+            }
+                //openP = company['Time Series (30min)'][timeStr]['4. close']; //[date+' '+time]['4. close'];
+            
+           
+            resolve(SMupdateBool);
+            //return openP;
+        });
+    });
+    request.end();
+    });
+    }
+    
 function getStockVolume(){
     return new Promise(function(resolve, reject){
     var request = https.request({
@@ -108,13 +150,10 @@ function getStockVolume(){
             lastRef = company['Meta Data']['3. Last Refreshed'];
             console.log(lastRef);
           //  console.log(company);
-            if(lastRef == timeStr){
-                SMopen = true;
+           
                 volume = company['Time Series (30min)'][timeStr]['5. volume']; //[date+' '+time]['4. close'];
-            }
-            else{
-                SMopen = false;
-            }
+            
+            
             resolve(volume);
         });
     });
@@ -129,7 +168,7 @@ async function getStockPriceTest(){
     console.log(minutes);
 }
 
-setInterval(predictPrice, 30*60*1000);
+setInterval(predictPrice, 3*60*1000);
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
@@ -165,6 +204,8 @@ async function updateNN(){
 }      
 
 async function predictPrice(){
+    let DBup = await dataBaseCheck();
+    if(DBup){
     numTotal++;
     bigString = {};
     bigString["totalRuns"] = numTotal;
@@ -181,10 +222,6 @@ async function predictPrice(){
     bigString["currentIntrest"] =  currentIntrest;
     bigString["SYStime"] = time;
     bigString["dataBaseTime"] = lastRef;
-    if(!SMopen){
-        bigString["printStatement"] = "Stockmarket is closed";       
-    }
-    else{
     let priceDelta = (currentPrice-previousPrice)/previousPrice;
     console.log("Price delta percent: "+priceDelta);
     bigString["priceDelta"] = priceDelta;
@@ -272,6 +309,7 @@ async function predictPrice(){
         previousInputs = inputs;
         console.log("\n");
     }
+    
     
 }
 //Google TRends data
