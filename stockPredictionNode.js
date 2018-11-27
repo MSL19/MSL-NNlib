@@ -62,20 +62,17 @@ var request = https.request({
     response.on('end', function() {
         company = JSON.parse(json);
         //console.log(company);
-        let openP;
+        
         
         updateTime();
         let timeStr = date+' '+time;
         lastRef = company['Meta Data']['3. Last Refreshed'];
         console.log(lastRef);
-        if(lastRef == timeStr){
-            SMopen = true;
+      
             openP = company['Time Series (30min)'][timeStr]['4. close']; //[date+' '+time]['4. close'];
-        }
-        else{
-            SMopen = false;
-        }
-        resolve(SMopen);
+         
+      
+        resolve(openP);
         //return openP;
     });
 });
@@ -168,7 +165,7 @@ async function getStockPriceTest(){
     console.log(minutes);
 }
 
-setInterval(predictPrice, 3*60*1000);
+setInterval(predictPrice, 20000);
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
@@ -197,9 +194,7 @@ let normalizedPriceIndex;
 let normalizedVolumeIndex;
 let normalizedInterest;
 async function updateNN(){
-    predictPrice();
-    
-    
+    predictPrice(); 
 
 }      
 
