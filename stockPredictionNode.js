@@ -222,7 +222,7 @@ async function predictPrice(){
     bigString["priceDelta"] = priceDelta;
     normalizedPriceIndex = 0.5 +(priceDelta*10);//the price delta will be neg already so no nead to like try and add or subtract
     let volumeDelta = (currentVolume-previousVolume)/previousVolume;
-    normalizedVolumeIndex = 0.5 + volumeDelta*20;
+    normalizedVolumeIndex = 0.5 + volumeDelta/2;
     normalizedInterest = currentIntrest/100;
 
     let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
