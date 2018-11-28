@@ -49,10 +49,7 @@ var request = https.request({
     method: "GET",
     host: "www.alphavantage.co", //"api.intrinio.com",
     path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=4YCOZN9E28NT4HJL", 
-    //"/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
-   /* headers: {
-        "Authorization": auth
-    }*/
+    
 
 }, function(response) {
     var json = "";
@@ -69,7 +66,7 @@ var request = https.request({
         lastRef = company['Meta Data']['3. Last Refreshed'];
         console.log(lastRef);
       
-            openP = company['Time Series (30min)'][timeStr]['4. close']; //[date+' '+time]['4. close'];
+           let openP = company['Time Series (30min)'][timeStr]['4. close']; //[date+' '+time]['4. close'];
          
       
         resolve(openP);
@@ -85,10 +82,7 @@ function dataBaseCheck(){
         method: "GET",
         host: "www.alphavantage.co", //"api.intrinio.com",
         path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=4YCOZN9E28NT4HJL", 
-        //"/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
-       /* headers: {
-            "Authorization": auth
-        }*/
+        
     
     }, function(response) {
         var json = "";
@@ -97,7 +91,7 @@ function dataBaseCheck(){
         });
         response.on('end', function() {
             company = JSON.parse(json);
-            //console.log(company);
+            console.log(company);
             let SMupdateBool; 
            
             
@@ -110,7 +104,6 @@ function dataBaseCheck(){
             else{
                 SMupdateBool = false;
             }
-                //openP = company['Time Series (30min)'][timeStr]['4. close']; //[date+' '+time]['4. close'];
             
            
             resolve(SMupdateBool);
@@ -127,11 +120,7 @@ function getStockVolume(){
         method: "GET",
         host: "www.alphavantage.co", //"api.intrinio.com",
         path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=4YCOZN9E28NT4HJL", 
-        //"/prices?identifier=AAPL&start_date="+date+"&end_date="+date+"&frequency=daily&sort_order=asc&page_number=1&page_size=1",
-       /* headers: {
-            "Authorization": auth
-        }*/
-    
+     
     }, function(response) {
         var json = "";
         response.on('data', function (chunk) {
@@ -139,7 +128,7 @@ function getStockVolume(){
         });
         response.on('end', function() {
             company = JSON.parse(json);
-            //console.log(company);
+            console.log(company);
             let volume;
             updateTime();
             let timeStr = date+' '+time;
@@ -165,7 +154,7 @@ async function getStockPriceTest(){
     console.log(minutes);
 }
 
-setInterval(predictPrice, 2*60*1000);
+setInterval(predictPrice, 10000);
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
@@ -301,6 +290,7 @@ async function predictPrice(){
         previousIntrest = currentIntrest;
         PC = newPC;
         bigString["numCorrect"] = avgCorrect;
+        //console.log(bigString.toString());
         previousInputs = inputs;
         console.log("\n");
     }
