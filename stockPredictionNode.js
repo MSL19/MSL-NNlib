@@ -146,15 +146,9 @@ function getStockVolume(){
     request.end();
     });
     }
-async function getStockPriceTest(){
-    var test = await getStockPrice();
-    var vol = await getStockVolume();
-    console.log(test);
-    console.log(vol);
-    console.log(minutes);
-}
 
-setInterval(predictPrice, 10000);
+
+setInterval(predictPrice, 5*60*1000);
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
@@ -262,28 +256,6 @@ async function predictPrice(){
                 actualPriceChangeArr = [1,0];
             }  
         }
-        //here is where i need to normalize my data
-      /*  currentPrice = await getEthPrice();
-        currentVolume = await getEthVol();
-        currentIntrest = await getGoogTrendsData();*/
-        //let priceDelta = (currentPrice-previousPrice)/previousPrice;
-    /*    if(priceDelta<0){
-            normalizedPriceIndex = 0.5 - (priceDelta/2);
-        }
-        else{
-            normalizedPriceIndex = 0.5 + (priceDelta/2);
-        }
-      //  let volumeDelta = (currentVolume-previousVolume)/previousVolume;
-        if(volumeDelta<0){
-            normalizedVolumeIndex = 0.5 - (volumeDelta/2);
-        }
-        else{
-            normalizedVolumeIndex = 0.5 + (volumeDelta/2);
-        }
-        normalizedInterest = currentIntrest/100;
-    */
-    //    let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
-    
         brain.train(previousInputs, actualPriceChangeArr);
         previousPrice = currentPrice;
         previousVolume = currentVolume;
