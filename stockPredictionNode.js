@@ -148,7 +148,7 @@ function getStockVolume(){
     }
 
 
-setInterval(predictPrice, 5*60*1000);
+setInterval(predictPrice, 20000);
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
