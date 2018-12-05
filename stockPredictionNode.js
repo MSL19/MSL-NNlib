@@ -65,8 +65,8 @@ var request = https.request({
         let timeStr = date+' '+time;
         lastRef = company['Meta Data']['3. Last Refreshed'];
         console.log(lastRef);
-      
-           let openP = company['Time Series (30min)'][timeStr]['4. close']; //[date+' '+time]['4. close'];
+            //console.log(company['Time Series (30min)'][1]);
+           let openP = company['Time Series (30min)'][lastRef]['4. close']; //[date+' '+time]['4. close'];
          
       
         resolve(openP);
@@ -137,7 +137,7 @@ function getStockVolume(){
             console.log(lastRef);
           //  console.log(company);
            
-                volume = company['Time Series (30min)'][timeStr]['5. volume']; //[date+' '+time]['4. close'];
+                volume = company['Time Series (30min)'][lastRef]['5. volume']; //[date+' '+time]['4. close'];
             
             
             resolve(volume);
@@ -161,7 +161,7 @@ let numTotal = 0;
 let previousInputs = [0.5,0.5,0.5];
 //currents
 let bigString = {};
-var previousPrice = 171.0475;
+var previousPrice = 176.0475;
 var previousVolume = 1544998;
 var previousIntrest = 0.5; 
 //previous
@@ -265,7 +265,12 @@ async function predictPrice(){
         //console.log(bigString.toString());
         previousInputs = inputs;
         console.log("\n");
+        bigString["marketStatus"] = "stockmarket is open right now";
     }
+    else{
+        bigString["marketStatus"] = "stockmarket is closed right now";
+    }
+    
     
     
 }
