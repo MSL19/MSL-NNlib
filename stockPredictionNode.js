@@ -48,7 +48,7 @@ return new Promise(function(resolve, reject){
 var request = https.request({
     method: "GET",
     host: "www.alphavantage.co", //"api.intrinio.com",
-    path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=4YCOZN9E28NT4HJL", 
+    path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=HQ5I4BGWLZBZUPJC", 
     
 
 }, function(response) {
@@ -81,7 +81,7 @@ function dataBaseCheck(){
     var request = https.request({
         method: "GET",
         host: "www.alphavantage.co", //"api.intrinio.com",
-        path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=4YCOZN9E28NT4HJL", 
+        path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=HQ5I4BGWLZBZUPJC", 
         
     
     }, function(response) {
@@ -119,7 +119,7 @@ function getStockVolume(){
     var request = https.request({
         method: "GET",
         host: "www.alphavantage.co", //"api.intrinio.com",
-        path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=4YCOZN9E28NT4HJL", 
+        path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=HQ5I4BGWLZBZUPJC", 
      
     }, function(response) {
         var json = "";
@@ -148,7 +148,7 @@ function getStockVolume(){
     }
 
 
-setInterval(predictPrice, 120000);
+setInterval(predictPrice, 4*60*1000);
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
