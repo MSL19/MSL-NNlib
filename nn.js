@@ -57,19 +57,21 @@ class nn {
 
 
   }
-
+  getWeightsIH(){
+    return this.weights_ih;
+  }
   predict(input_array) {
 
     // Generating the Hidden Outputs
     let inputs = Matrix.fromArray(input_array);
-    let hidden = Matrix.multiply(this.weights_ih, inputs);
+    let hidden = Matrix.multiply(this.weights_ih, inputs); //LOG the weights!
     hidden.add(this.bias_h);
     // activation function!
     hidden.map(this.activation_function.func);
 
     // Generating the output's output!
     let output = Matrix.multiply(this.weights_ho, hidden);
-    output.add(this.bias_o);
+    output.add(this.bias_o);//waht is thi sexactly?
     output.map(this.activation_function.func);
 
     // Sending back to the caller!
@@ -94,7 +96,10 @@ class nn {
 
     // Generating the output's output!
     let outputs = Matrix.multiply(this.weights_ho, hidden);
-    outputs.add(this.bias_o);
+    outputs.add(this.bias_o); //weight the actual price change to see if it's worth it
+    //basis point is 1/100 of a percent
+    //also consider it's certanty in my training
+    //
     outputs.map(this.activation_function.func);
 
     // Convert array to matrix object

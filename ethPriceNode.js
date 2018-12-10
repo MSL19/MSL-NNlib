@@ -4,7 +4,6 @@ const matrix = require('./matrix');
 const nn = require("./nn");
 let brain  = new nn(3,3,2); //create a NN
 let PC;
-let BiggestString;
 let newPC;
 let avgCorrect = 0;
 let numTotal = 0;
@@ -130,10 +129,11 @@ async function predictPrice(){
         previousVolume = currentVolume;
         previousIntrest = currentIntrest;
         PC = newPC;
+        bigString["IHW"] = brain.getWeightsIH();
         bigString["numCorrect"] = avgCorrect;
         previousInputs = inputs;
         console.log("\n");
-        BiggestString += bigString.toString();
+       
         
     
 }
@@ -257,7 +257,7 @@ requestEthPrice.end();
 const express = require('express'); //create express sender object
 const app = express();//create express object
 const port = 3030; //set the localhost port
-app.get('/', (req, res) => res.json(bigString), res.send(BiggestString)); //send the data--make sure to convert to a string
+app.get('/', (req, res) => res.json(bigString)); //send the data--make sure to convert to a string
 app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
 
 /* //this works but for now I'm not including it while I do my stuff
