@@ -60,6 +60,15 @@ class nn {
   getWeightsIH(){
     return this.weights_ih;
   }
+  getWeightsHO(){
+    return this.weights_ho;
+  }
+  getBiasH(){
+    return this.bias_h;
+  }
+  getBiasO(){
+    return this.bias_o;
+  }
   predict(input_array) {
 
     // Generating the Hidden Outputs

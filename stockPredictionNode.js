@@ -43,8 +43,49 @@ day = "0"+day;
 }
 date = year+"-"+mon+"-"+day;
 }
-function getStockPrice(){
-return new Promise(function(resolve, reject){
+function getStockJSON(){
+    return new Promise(function(resolve, reject){
+        var request = https.request({
+            method: "GET",
+            host: "www.alphavantage.co", //"api.intrinio.com",
+            path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=HQ5I4BGWLZBZUPJC", 
+            
+        
+        }, function(response) {
+            var json = "";
+            response.on('data', function (chunk) {
+                json += chunk;
+            });
+            response.on('end', function() {
+                company = JSON.parse(json);
+               /* //console.log(company);
+                
+                
+                updateTime();
+                let timeStr = date+' '+time;
+                lastRef = company['Meta Data']['3. Last Refreshed'];
+                console.log(lastRef);*/
+                    //console.log(company['Time Series (30min)'][1]);
+                 //  let openP = company['Time Series (30min)'][lastRef]['4. close']; //[date+' '+time]['4. close'];
+                 
+              
+                resolve(company);
+                //return openP;
+            });
+        });
+        request.end();
+        });
+         
+}
+function getStockPrice(company){
+    updateTime();
+    let timeStr = date+' '+time;
+    lastRef = company['Meta Data']['3. Last Refreshed'];
+    console.log(lastRef);
+        //console.log(company['Time Series (30min)'][1]);
+      return company['Time Series (30min)'][lastRef]['4. close']; //[date+' '+time]['4. close'];
+     
+/*return new Promise(function(resolve, reject){
 var request = https.request({
     method: "GET",
     host: "www.alphavantage.co", //"api.intrinio.com",
@@ -74,9 +115,24 @@ var request = https.request({
     });
 });
 request.end();
-});
+});*/
 }
-function dataBaseCheck(){
+function dataBaseCheck(company){
+    let SMupdateBool; 
+   
+    
+    lastRef = company['Meta Data']['3. Last Refreshed'];
+    console.log(lastRef);
+    if(lastRef !== lastDBTime){
+        SMupdateBool = true;
+        lastDBTime = lastRef;
+    }
+    else{
+        SMupdateBool = false;
+    }
+    
+   return SMupdateBool;
+    /*
     return new Promise(function(resolve, reject){
     var request = https.request({
         method: "GET",
@@ -111,10 +167,23 @@ function dataBaseCheck(){
         });
     });
     request.end();
-    });
+    });*/
     }
     
-function getStockVolume(){
+function getStockVolume(company){
+    let volume;
+    updateTime();
+    let timeStr = date+' '+time;
+    console.log(timeStr);
+    lastRef = company['Meta Data']['3. Last Refreshed'];
+    console.log(lastRef);
+  //  console.log(company);
+   
+        volume = company['Time Series (30min)'][lastRef]['5. volume']; //[date+' '+time]['4. close'];
+    
+    
+   return volume;
+    /*
     return new Promise(function(resolve, reject){
     var request = https.request({
         method: "GET",
@@ -144,11 +213,11 @@ function getStockVolume(){
         });
     });
     request.end();
-    });
+    });*/
     }
 
 
-setInterval(predictPrice, 4*60*1000);
+setInterval(predictPrice, 4000);
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
@@ -182,15 +251,17 @@ async function updateNN(){
 }      
 
 async function predictPrice(){
-    let DBup = await dataBaseCheck();
+    let comp = await getStockJSON();
+
+    let DBup = dataBaseCheck(comp);
     if(DBup){
     numTotal++;
     bigString = {};
     bigString["totalRuns"] = numTotal;
-
-    currentPrice = await getStockPrice();
-    currentVolume = await getStockVolume();
-    currentIntrest = await getGoogTrendsData();
+    let comp = await getStockJSON();
+    currentPrice =  getStockPrice(comp);
+    currentVolume =  getStockVolume(comp);
+    currentIntrest =  await getGoogTrendsData();
    
     console.log(currentPrice);
     console.log(currentVolume);
@@ -265,6 +336,10 @@ async function predictPrice(){
         //console.log(bigString.toString());
         previousInputs = inputs;
         console.log("\n");
+        bigString["IHW"] = brain.getWeightsIH();
+        bigString["HOW"] = brain.getWeightsHO();
+        bigString["BH"] = brain.getBiasH();
+        bigString["BO"] = brain.getBiasO();
         bigString["marketStatus"] = "stockmarket is open right now";
     }
     else{
