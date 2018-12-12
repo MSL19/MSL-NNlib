@@ -297,7 +297,7 @@ async function predictPrice(){
     }
 
         if(PC == 0){
-        if(previousPrice>currentPrice){ //no gradiant here
+        if(previousPrice>currentPrice+0.01){ //no gradiant here
             //maybe feedback the difference between the normalized pricce deltas and the expected price delta
             console.log("Price was supposed to go up------Price went down---------------");
             actualPriceChangeArr = [0,1];
@@ -340,6 +340,8 @@ async function predictPrice(){
         bigString["HOW"] = brain.getWeightsHO();
         bigString["BH"] = brain.getBiasH();
         bigString["BO"] = brain.getBiasO();
+        bigString["hiddenNodes"] = brain.getHiddenNodes();
+        bigString["message"] = "This assumes a $0.01 trading fee";
         bigString["marketStatus"] = "stockmarket is open right now";
     }
     else{

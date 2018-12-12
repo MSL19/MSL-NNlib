@@ -157,7 +157,7 @@ function getGoogTrendsData(){
 return new Promise (function(resolve, reject){
 googleTrends.interestOverTime({keyword: 'ethereum', catagory: 1179, startTime: new Date(Date.now() - (24 * 60 * 60 * 1000)), granularTimeResolution: true, geo: 'US'})
 .then((res) => {
-  jsonData = JSON.parse(res);
+  jsonData = JSON.parse(res); //stopped here
   resolve(jsonData['default']['timelineData'][0]['value']);
 })
 .catch((err) => {
