@@ -69,6 +69,9 @@ class nn {
   getBiasO(){
     return this.bias_o;
   }
+  getHiddenNodes(){
+    return this.hidden_nodes;
+  }
   predict(input_array) {
 
     // Generating the Hidden Outputs
