@@ -217,7 +217,9 @@ function getStockVolume(company){
     }
 
 
-setInterval(predictPrice, 4*60*1000);
+//setInterval(predictPrice, 4*60*1000);
+setInterval(predictPrice, 10000);
+
 // i need to talk to haynes about normalizing the price and the volume 
 //google trends data should already be normalized
 const matrix = require('./matrix');
@@ -285,6 +287,15 @@ async function predictPrice(){
     let outputs = brain.predict(inputs);
     bigString["outputs"]  = outputs;
     console.log(outputs);
+    bigString["hiddenRaw"]  = brain.getHiddenRaw(inputs);
+    bigString["hiddenB"]  = brain.getHiddenB(inputs);
+    bigString["hidden"]  = brain.getHidden(inputs);
+    bigString["outputsRaw"]  = brain.getOutputRaw(inputs);
+    bigString["outputsB"]  = brain.getOutputB(inputs);
+    bigString["IHW"] = brain.getWeightsIH();
+    bigString["HOW"] = brain.getWeightsHO();
+    bigString["BH"] = brain.getBiasH();
+    bigString["BO"] = brain.getBiasO();
     if(outputs[0]>outputs[1]){ //[0,1] = the price will go down
         newPC = 0; 
         console.log("Price Will go up");
@@ -336,11 +347,7 @@ async function predictPrice(){
         //console.log(bigString.toString());
         previousInputs = inputs;
         console.log("\n");
-        bigString["IHW"] = brain.getWeightsIH();
-        bigString["HOW"] = brain.getWeightsHO();
-        bigString["BH"] = brain.getBiasH();
-        bigString["BO"] = brain.getBiasO();
-        bigString["hiddenNodes"] = brain.getHiddenNodes();
+        
         bigString["message"] = "This assumes a $0.01 trading fee";
         bigString["marketStatus"] = "stockmarket is open right now";
     }

@@ -23,6 +23,7 @@ class nn {
   * if first argument is a nn the constructor clones it
   * USAGE: cloned_nn = new nn(to_clone_nn);
   */
+
   constructor(in_nodes, hid_nodes, out_nodes) {
     if (in_nodes instanceof nn) {
       let a = in_nodes;
@@ -44,7 +45,6 @@ class nn {
       this.weights_ho = new Matrix(this.output_nodes, this.hidden_nodes);
       this.weights_ih.randomize();
       this.weights_ho.randomize();
-
       this.bias_h = new Matrix(this.hidden_nodes, 1);
       this.bias_o = new Matrix(this.output_nodes, 1);
       this.bias_h.randomize();
@@ -69,9 +69,7 @@ class nn {
   getBiasO(){
     return this.bias_o;
   }
-  getHiddenNodes(){
-    return this.hidden_nodes;
-  }
+  
   predict(input_array) {
 
     // Generating the Hidden Outputs
@@ -80,7 +78,6 @@ class nn {
     hidden.add(this.bias_h);
     // activation function!
     hidden.map(this.activation_function.func);
-
     // Generating the output's output!
     let output = Matrix.multiply(this.weights_ho, hidden);
     output.add(this.bias_o);//waht is thi sexactly?
@@ -89,7 +86,69 @@ class nn {
     // Sending back to the caller!
     return output.toArray();
   }
+  getHiddenRaw(input_array) {
 
+    // Generating the Hidden Outputs
+    let inputs = Matrix.fromArray(input_array);
+    let hidden = Matrix.multiply(this.weights_ih, inputs); //LOG the weights!
+   
+    // Sending back to the caller!
+    return hidden.toArray();
+  }
+  getHiddenB(input_array) {
+
+    // Generating the Hidden Outputs
+    let inputs = Matrix.fromArray(input_array);
+    let hidden = Matrix.multiply(this.weights_ih, inputs); //LOG the weights!
+    hidden.add(this.bias_h);
+    hidden.map(this.activation_function.func);
+
+    // Sending back to the caller!
+    return hidden.toArray();
+  }
+  getHidden(input_array) {
+
+    // Generating the Hidden Outputs
+    let inputs = Matrix.fromArray(input_array);
+    let hidden = Matrix.multiply(this.weights_ih, inputs); //LOG the weights!
+    hidden.add(this.bias_h);
+    hidden.map(this.activation_function.func);
+    // Sending back to the caller!
+    return hidden.toArray();
+  }
+  getOutputRaw(input_array) {
+
+    // Generating the Hidden Outputs
+    let inputs = Matrix.fromArray(input_array);
+    let hidden = Matrix.multiply(this.weights_ih, inputs); //LOG the weights!
+    hidden.add(this.bias_h);
+    // activation function!
+    hidden.map(this.activation_function.func);
+    // Generating the output's output!
+    let output = Matrix.multiply(this.weights_ho, hidden);
+    //output.add(this.bias_o);//waht is thi sexactly?
+    //output.map(this.activation_function.func);
+
+    // Sending back to the caller!
+    return output.toArray();
+  }
+  getOutputB(input_array) {
+
+    // Generating the Hidden Outputs
+    let inputs = Matrix.fromArray(input_array);
+    let hidden = Matrix.multiply(this.weights_ih, inputs); //LOG the weights!
+    hidden.add(this.bias_h);
+    // activation function!
+    hidden.map(this.activation_function.func);
+    // Generating the output's output!
+    let output = Matrix.multiply(this.weights_ho, hidden);
+    output.add(this.bias_o);//waht is thi sexactly?
+    //output.map(this.activation_function.func);
+
+    // Sending back to the caller!
+    return output.toArray();
+  }
+  
   setLearningRate(learning_rate = 0.1) {
     this.learning_rate = learning_rate;
   }
