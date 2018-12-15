@@ -101,7 +101,7 @@ class nn {
     let inputs = Matrix.fromArray(input_array);
     let hidden = Matrix.multiply(this.weights_ih, inputs); //LOG the weights!
     hidden.add(this.bias_h);
-    hidden.map(this.activation_function.func);
+   // hidden.map(this.activation_function.func);
 
     // Sending back to the caller!
     return hidden.toArray();
