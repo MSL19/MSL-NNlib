@@ -1,3 +1,17 @@
+/**
+ * Name: Max Lewis
+ * Project Name: Max Lewis 20% Proj Sem 1
+ * Purpose: 
+ * This server side code runs on the KDS ATP server
+ * Every 30 minutes, it pulls the the price and volume traded of Apple Stock from the Alphavantage API along with the search
+ * interest for Apple from Google Trends
+ * These three inputs are normalized and then fed into a 3,3,2 Neural Network, which then predicth how the price of the stock 
+ * will changed by comparing the values of the final outpur nodes
+ * The Stock Data, along with all the various weights and biases from the Neural Network are then added to a JSON object which
+ * is braodcasted to kdsatp.org/nnpp/ for the fron end GUI to pull from
+ * Date: 12/15/18
+ * Collaborators: None
+ */
 var https = require("https");
 
 let d;
@@ -43,7 +57,7 @@ day = "0"+day;
 }
 date = year+"-"+mon+"-"+day;
 }
-function getStockJSON(){
+function getStockJSON(){ //this pulls the JSON data on Apple stock from Alphavantage and returns the JSON
     return new Promise(function(resolve, reject){
         var request = https.request({
             method: "GET",
@@ -57,27 +71,15 @@ function getStockJSON(){
                 json += chunk;
             });
             response.on('end', function() {
-                company = JSON.parse(json);
-               /* //console.log(company);
-                
-                
-                updateTime();
-                let timeStr = date+' '+time;
-                lastRef = company['Meta Data']['3. Last Refreshed'];
-                console.log(lastRef);*/
-                    //console.log(company['Time Series (30min)'][1]);
-                 //  let openP = company['Time Series (30min)'][lastRef]['4. close']; //[date+' '+time]['4. close'];
-                 
-              
-                resolve(company);
-                //return openP;
+                company = JSON.parse(json);             
+                resolve(company); //returning the JSON
             });
         });
         request.end();
         });
          
 }
-function getStockPrice(company){
+function getStockPrice(company){ //this parses through the JSON array to find the most recent stock price  
     updateTime();
     let timeStr = date+' '+time;
     lastRef = company['Meta Data']['3. Last Refreshed'];
@@ -85,39 +87,8 @@ function getStockPrice(company){
         //console.log(company['Time Series (30min)'][1]);
       return company['Time Series (30min)'][lastRef]['4. close']; //[date+' '+time]['4. close'];
      
-/*return new Promise(function(resolve, reject){
-var request = https.request({
-    method: "GET",
-    host: "www.alphavantage.co", //"api.intrinio.com",
-    path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=HQ5I4BGWLZBZUPJC", 
-    
-
-}, function(response) {
-    var json = "";
-    response.on('data', function (chunk) {
-        json += chunk;
-    });
-    response.on('end', function() {
-        company = JSON.parse(json);
-        //console.log(company);
-        
-        
-        updateTime();
-        let timeStr = date+' '+time;
-        lastRef = company['Meta Data']['3. Last Refreshed'];
-        console.log(lastRef);
-            //console.log(company['Time Series (30min)'][1]);
-           let openP = company['Time Series (30min)'][lastRef]['4. close']; //[date+' '+time]['4. close'];
-         
-      
-        resolve(openP);
-        //return openP;
-    });
-});
-request.end();
-});*/
 }
-function dataBaseCheck(company){
+function dataBaseCheck(company){ //this checks to see if the database has been updated
     let SMupdateBool; 
    
     
@@ -132,45 +103,10 @@ function dataBaseCheck(company){
     }
     
    return SMupdateBool;
-    /*
-    return new Promise(function(resolve, reject){
-    var request = https.request({
-        method: "GET",
-        host: "www.alphavantage.co", //"api.intrinio.com",
-        path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=HQ5I4BGWLZBZUPJC", 
-        
-    
-    }, function(response) {
-        var json = "";
-        response.on('data', function (chunk) {
-            json += chunk;
-        });
-        response.on('end', function() {
-            company = JSON.parse(json);
-            console.log(company);
-            let SMupdateBool; 
-           
-            
-            lastRef = company['Meta Data']['3. Last Refreshed'];
-            console.log(lastRef);
-            if(lastRef !== lastDBTime){
-                SMupdateBool = true;
-                lastDBTime = lastRef;
-            }
-            else{
-                SMupdateBool = false;
-            }
-            
-           
-            resolve(SMupdateBool);
-            //return openP;
-        });
-    });
-    request.end();
-    });*/
+   
     }
     
-function getStockVolume(company){
+function getStockVolume(company){ //this parses through the JSON array to find the most recent stock volumme  
     let volume;
     updateTime();
     let timeStr = date+' '+time;
@@ -183,45 +119,14 @@ function getStockVolume(company){
     
     
    return volume;
-    /*
-    return new Promise(function(resolve, reject){
-    var request = https.request({
-        method: "GET",
-        host: "www.alphavantage.co", //"api.intrinio.com",
-        path: "/query?function=TIME_SERIES_INTRADAY&symbol=AAPL&interval=30min&apikey=HQ5I4BGWLZBZUPJC", 
-     
-    }, function(response) {
-        var json = "";
-        response.on('data', function (chunk) {
-            json += chunk;
-        });
-        response.on('end', function() {
-            company = JSON.parse(json);
-            console.log(company);
-            let volume;
-            updateTime();
-            let timeStr = date+' '+time;
-            console.log(timeStr);
-            lastRef = company['Meta Data']['3. Last Refreshed'];
-            console.log(lastRef);
-          //  console.log(company);
-           
-                volume = company['Time Series (30min)'][lastRef]['5. volume']; //[date+' '+time]['4. close'];
-            
-            
-            resolve(volume);
-        });
-    });
-    request.end();
-    });*/
+    
     }
 
 
-setInterval(predictPrice, 4*60*1000);
+setInterval(predictPrice, 4*60*1000); //this runs the predice price function every 4 minutes
 //setInterval(predictPrice, 10000);
 
-// i need to talk to haynes about normalizing the price and the volume 
-//google trends data should already be normalized
+
 const matrix = require('./matrix');
 const nn = require("./nn");
 let brain  = new nn(3,3,2); //create a NN
@@ -252,10 +157,10 @@ async function updateNN(){
 
 }      
 
-async function predictPrice(){
+async function predictPrice(){ //this function only runs of the stock price has updated (this happens every 30 minutes)
     let comp = await getStockJSON();
 
-    let DBup = dataBaseCheck(comp);
+    let DBup = dataBaseCheck(comp); //checking if the Database has updated--if not, the NN will not be run
     if(DBup){
     numTotal++;
     bigString = {};
@@ -268,6 +173,7 @@ async function predictPrice(){
     console.log(currentPrice);
     console.log(currentVolume);
     console.log(currentIntrest);
+    //loging data to the JSON object
     bigString["currentPrice"] = currentPrice;
     bigString["currentVolume"] = currentVolume;
     bigString["currentIntrest"] =  currentIntrest;
@@ -283,6 +189,7 @@ async function predictPrice(){
 
     let inputs = [normalizedPriceIndex,normalizedVolumeIndex,normalizedInterest];
     console.log(inputs);
+    //more loging
     bigString["inputs"] = inputs;
     let outputs = brain.predict(inputs);
     bigString["outputs"]  = outputs;
@@ -296,28 +203,27 @@ async function predictPrice(){
     bigString["HOW"] = brain.getWeightsHO();
     bigString["BH"] = brain.getBiasH();
     bigString["BO"] = brain.getBiasO();
-    if(outputs[0]>outputs[1]){ //[0,1] = the price will go down
+    if(outputs[0]>outputs[1]){ //comparing the final values of the outputs of the NN to see if the price of the stock will fall or increase
         newPC = 0; 
         console.log("Price Will go up");
    
     }
-    else{
+    else{ 
         newPC = 1;
         console.log("Price Will go down");
 
     }
 
         if(PC == 0){
-        if(previousPrice>currentPrice+0.01){ //no gradiant here
-            //maybe feedback the difference between the normalized pricce deltas and the expected price delta
+        if(previousPrice>currentPrice+0.01){ //creating accurate logs of wether the NN was right and also setting up arrays to train the NN on
             console.log("Price was supposed to go up------Price went down---------------");
-            actualPriceChangeArr = [0,1];
+            actualPriceChangeArr = [0,1]; //used to train the NN
             bigString["printStatement"] ="Price was supposed to go up------Price went down---------------" + "\n" +"\n";
         }
     
         else{
             console.log("Price was supposed to go up-------price went up------------------");
-            actualPriceChangeArr = [1,0];
+            actualPriceChangeArr = [1,0];//used to train the NN 
             avgCorrect++;
             
             bigString["printStatement"] = "Price was supposed to go up------Price went up---------------" + "\n" +"\n";
@@ -326,7 +232,7 @@ async function predictPrice(){
         else{
             if(previousPrice<currentPrice){ 
                 //maybe feedback the difference between the normalized pricce deltas and the expected price delta
-                actualPriceChangeArr = [0,1];
+                actualPriceChangeArr = [0,1]; //used to train the NN
                 console.log("price was supposed to go down--------price went up------------------");
                 
                 bigString["printStatement"] = "Price was supposed to go down------Price went up---------------" + "\n" +"\n";
@@ -335,10 +241,10 @@ async function predictPrice(){
                 console.log("price was supposed to go down----------Price went down---------------");
                 avgCorrect++;
                 bigString["printStatement"] = "Price was supposed to go down------Price went down---------------" + "\n" +"\n";
-                actualPriceChangeArr = [1,0];
+                actualPriceChangeArr = [1,0]; //used to train the NN
             }  
         }
-        brain.train(previousInputs, actualPriceChangeArr);
+        brain.train(previousInputs, actualPriceChangeArr); //training the NN by passing in the actual and "ideal" output arrays
         previousPrice = currentPrice;
         previousVolume = currentVolume;
         previousIntrest = currentIntrest;
@@ -348,7 +254,7 @@ async function predictPrice(){
         previousInputs = inputs;
         console.log("\n");
         
-        bigString["message"] = "This assumes a $0.01 trading fee";
+        bigString["message"] = "This assumes a $0.01 trading fee"; //this is per Mr. Spahr's advice
         bigString["marketStatus"] = "stockmarket is open right now";
     }
     else{
@@ -370,12 +276,12 @@ if(day<10){
 day = "0"+day;
 }
 
-async function printData(){
+async function printData(){ //used for debugging Google Trends Data
   var interest = await getGoogTrendsData();
   console.log(interest);
 }
 
-function getGoogTrendsData(){
+function getGoogTrendsData(){ //get search data from the google-trends-api in NODE.js
 return new Promise (function(resolve, reject){
 googleTrends.interestOverTime({keyword: 'apple', catagory: 1179, startTime: new Date(Date.now() - (24 * 60 * 60 * 1000)), granularTimeResolution: true, geo: 'US'})
 .then((res) => {
@@ -391,24 +297,11 @@ googleTrends.interestOverTime({keyword: 'apple', catagory: 1179, startTime: new 
 
 var https = require("https");
 
-                                                       
-
-
-//setInterval(updateNN, 30*60*1000);
-//getPrice();
+                                                    
 
 const express = require('express'); //create express sender object
 const app = express();//create express object
 const port = 3030; //set the localhost port
-app.get('/', (req, res) => res.json(bigString)); //send the data--make sure to convert to a string
+app.get('/', (req, res) => res.json(bigString)); //send the data to the website: https://www.kdsatp.org/nnpp/
 app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
 
-/* //this works but for now I'm not including it while I do my stuff
-const googleTrends = require('google-trends-api');
-googleTrends.relatedTopics({keyword: 'Apple', startTime: new Date('2018-10-19'), endTime: new Date(Date.now())})
-.then((res) => {
-  console.log(res);
-})
-.catch((err) => {
-  console.log(err);
-})*/
