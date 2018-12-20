@@ -29,6 +29,8 @@ matrix.js - a JS matrix library I also gor from p5: https://github.com/CodingTra
  Every other file- old depreciated code...you can ignore these; honestly, I need to delete a lot of these, but I keep them around incase I might need something from them...actually I guess I could get it from an old commit....I guess if it aint broke don't fix it....
 
  **HOW TO RUN**
+ 
+ 
 Install Node.js (latest version): https://nodejs.org/en/
 
 Install npm for Node.js (latest version): https://www.npmjs.com/
