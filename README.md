@@ -13,9 +13,24 @@
  * Date: 12/15/18
  * Collaborators: None
  */
- ** EACH FILE'S PURPOSE**
- stockPredictionNode.js - node.js code to be run on a server--this actually has the Neural Network
- Every other file- old depreciated code...you can ignore these
+ 
+ 
+ 
+ **Each File's Purpose**
+ 
+ 
+ stockPredictionNode.js - node.js code to be run on a server--this actually has the Neural Network that grabs JSON data from Alphavantage and Google Trends and uses it to predict the price of Apple Stock with a prediction horizon of 30 minutes
+
+
+nn.js - a JS neural network library I got from p5: https://github.com/CodingTrain/Toy-Neural-Network-JS/. However, it has been edited slightly to include functions to return the weights and biases at veraious stages of the network. 
+
+matrix.js - a JS matrix library I also gor from p5: https://github.com/CodingTrain/Toy-Neural-Network-JS/tree/master/lib. This is completely unedited by me. 
+ 
+ Every other file- old depreciated code...you can ignore these; honestly, I need to delete a lot of these, but I keep them around incase I might need something from them...actually I guess I could get it from an old commit....I guess if it aint broke don't fix it....
 
  **HOW TO RUN**
- Simply open the index.html file in any browser (crome prefered)
+Install Node.js (latest version): https://nodejs.org/en/
+
+Install npm for Node.js (latest version): https://www.npmjs.com/
+
+In your commnand prompt, maneuver to the folder containing the stockPredictionNode.js file and type node stockPredictionNode.js
