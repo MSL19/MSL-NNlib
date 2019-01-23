@@ -71,8 +71,13 @@ function getStockJSON(){ //this pulls the JSON data on Apple stock from Alphavan
                 json += chunk;
             });
             response.on('end', function() {
-                company = JSON.parse(json);             
+                try{
+                company = JSON.parse(json);   
                 resolve(company); //returning the JSON
+                }
+                catch(e){
+                reject(e);
+                }                
             });
         });
         request.end();
@@ -123,7 +128,7 @@ function getStockVolume(company){ //this parses through the JSON array to find t
     }
 
 
-setInterval(predictPrice, 4*60*1000); //this runs the predice price function every 4 minutes
+setInterval(predictPrice, 5*60*1000); //this runs the predice price function every 4 minutes
 //setInterval(predictPrice, 10000);
 
 
@@ -158,8 +163,8 @@ async function updateNN(){
 }      
 
 async function predictPrice(){ //this function only runs of the stock price has updated (this happens every 30 minutes)
+    try{
     let comp = await getStockJSON();
-
     let DBup = dataBaseCheck(comp); //checking if the Database has updated--if not, the NN will not be run
     if(DBup){
     numTotal++;
@@ -262,6 +267,11 @@ async function predictPrice(){ //this function only runs of the stock price has 
     }
     
     
+    
+    }
+    catch(e){
+        console.log("BIG ERROR!!");
+    }
     
 }
 //Google TRends data
