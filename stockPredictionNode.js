@@ -110,11 +110,11 @@ function dataBaseCheck(company){ //this checks to see if the database has been u
    return SMupdateBool;
    
     }
-    
+  let timeStr = "first";  
 function getStockVolume(company){ //this parses through the JSON array to find the most recent stock volumme  
     let volume;
     updateTime();
-    let timeStr = date+' '+time;
+     timeStr = date+' '+time;
     console.log(timeStr);
     lastRef = company['Meta Data']['3. Last Refreshed'];
     console.log(lastRef);
@@ -261,6 +261,8 @@ async function predictPrice(){ //this function only runs of the stock price has 
         
         bigString["message"] = "This assumes a $0.01 trading fee"; //this is per Mr. Spahr's advice
         bigString["marketStatus"] = "stockmarket is open right now";
+        usersRef.set(bigString);
+
     }
     else{
         bigString["marketStatus"] = "stockmarket is closed right now";
@@ -314,4 +316,14 @@ const app = express();//create express object
 const port = 3030; //set the localhost port
 app.get('/', (req, res) => res.json(bigString)); //send the data to the website: https://www.kdsatp.org/nnpp/
 app.listen(port, () => console.log(`Listening on port ${port}!`)); //log that you are sending the data
+
+var firebase = require("firebase-admin");
+var serviceAccount = require("./wows2-c4ed2-firebase-adminsdk-9w1di-1904845fc1.json");
+firebase.initializeApp({
+    credential: firebase.credential.cert(serviceAccount), 
+    databaseURL: "https://wows2-c4ed2.firebaseio.com/"
+})
+var db = firebase.database();
+var ref = db.ref(date);
+var usersRef = ref.child(timeStr);
 
