@@ -261,6 +261,7 @@ async function predictPrice(){ //this function only runs of the stock price has 
         
         bigString["message"] = "This assumes a $0.01 trading fee"; //this is per Mr. Spahr's advice
         bigString["marketStatus"] = "stockmarket is open right now";
+        usersRef = ref.child(timeStr);
         usersRef.set(bigString);
 
     }
